@@ -1,8 +1,7 @@
 package statsModels_test
-import (
-	"testing"
-  "statsModels" 
-)
+
+import "testing"
+import "statsModels" 
 
 inData = 
 "#group,false,false,true,true,false,false,true,true,true,true
@@ -33,5 +32,3 @@ t_linearRegression = (table=<-) =>
 
 test _linearRegression = () =>
 ({input: testing.loadStorage(csv: inData), want: testing.loadMem(csv: outData), fn: t_linearRegression})
-
-© 2020 GitHub, Inc.

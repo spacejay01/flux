@@ -1,8 +1,7 @@
 package anomalyDetection_test
-import (
-	"testing"
-  "anomalyDetection" 
-)
+
+import "testing"
+import "anomalyDetection" 
 
 inData= "
 #group,false,false,true,true,false,false,true,true,true,true
@@ -76,5 +75,3 @@ t_mad = (table=<-) =>
 
 test _linearRegression = () =>
 ({input: testing.loadStorage(csv: inData), want: testing.loadMem(csv: outData), fn: t_mad})
-
-© 2020 GitHub, Inc.
