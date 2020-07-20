@@ -37,6 +37,7 @@ func init() {
 	flux.RegisterOpSpec(GroupKind, newGroupOp)
 	plan.RegisterProcedureSpec(GroupKind, newGroupProcedure, GroupKind)
 	plan.RegisterLogicalRules(MergeGroupRule{})
+	plan.RegisterLogicalRules(OrderFilterGroup{})
 	execute.RegisterTransformation(GroupKind, createGroupTransformation)
 }
 
@@ -391,4 +392,24 @@ func (r MergeGroupRule) Rewrite(ctx context.Context, lastGroup plan.Node) (plan.
 	}
 
 	return merged, true, nil
+}
+
+// `OrderFilterGroup` orders to have 'filter |> group' from 'group |> filter'
+type OrderFilterGroup struct{}
+
+func (r OrderFilterGroup) Name() string {
+	return "OrderFilterGroup"
+}
+
+// returns the pattern that matches `group |> filter`
+func (r OrderFilterGroup) Pattern() plan.Pattern {
+	return plan.Pat(GroupKind, plan.Pat(FilterKind, plan.Any()))
+}
+
+func (r OrderFilterGroup) Rewrite(ctx context.Context, Filter plan.Node) (plan.Node, bool, error) {
+	Group := Filter.Predecessors()[0]
+	Filter.Predecessors()[0] = Group.Predecessors()[0]
+	Filter.Successors()[0] = Group
+
+	return Filter, true, nil
 }
