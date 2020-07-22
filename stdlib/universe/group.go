@@ -15,6 +15,7 @@ import (
 	"github.com/influxdata/flux/plan"
 	"github.com/influxdata/flux/runtime"
 	"github.com/influxdata/flux/semantic"
+	"github.com/influxdata/flux/stdlib/experimental"
 	"github.com/influxdata/flux/values"
 )
 
@@ -403,13 +404,14 @@ func (r OrderFilterGroup) Name() string {
 
 // returns the pattern that matches `group |> filter`
 func (r OrderFilterGroup) Pattern() plan.Pattern {
-	return plan.Pat(GroupKind, plan.Pat(FilterKind, plan.Any()))
+	return plan.Pat(FilterKind, plan.OneOf([]plan.ProcedureKind{GroupKind, experimental.ExperimentalGroupKind}, plan.Any()))
 }
 
 func (r OrderFilterGroup) Rewrite(ctx context.Context, Filter plan.Node) (plan.Node, bool, error) {
 	Group := Filter.Predecessors()[0]
 	Filter.Predecessors()[0] = Group.Predecessors()[0]
 	Filter.Successors()[0] = Group
+	Group.Successors()[0] = Filter
 
 	return Filter, true, nil
 }
