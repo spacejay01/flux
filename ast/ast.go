@@ -160,6 +160,93 @@ func (e Error) Error() string {
 	return e.Msg
 }
 
+type TypeExpression struct {
+	BaseNode
+	Ty          MonoType
+	Constraints []*Constraint
+}
+
+func (TypeExpression) Type() string {
+	return "TypeExpression"
+}
+
+type MonoType interface {
+	Node
+	monotype()
+}
+
+type NamedType struct {
+	*Identifier
+}
+
+func (NamedType) Type() string {
+	return "NamedType"
+}
+
+type ArrayType struct {
+	BaseNode
+	ElementType MonoType
+}
+
+func (ArrayType) Type() string {
+	return "ArrayType"
+}
+
+type RecordType struct {
+	BaseNode
+	Properties []*PropertyType
+	Tvar       *Identifier
+}
+
+func (RecordType) Type() string {
+	return "RecordType"
+}
+
+type PropertyType struct {
+	BaseNode
+	Name *Identifier
+	Ty   MonoType
+}
+
+func (PropertyType) Type() string {
+	return "PropertyType"
+}
+
+type FunctionType struct {
+	BaseNode
+	Parameters []*ParameterType
+	Return     MonoType
+}
+
+func (FunctionType) Type() string {
+	return "FunctionType"
+}
+
+type ParameterKind uint8
+
+const (
+	Required ParameterKind = 0
+	Optional ParameterKind = 1
+	Pipe     ParameterKind = 2
+)
+
+type ParameterType struct {
+	BaseNode
+	Name *Identifier
+	Ty   MonoType
+	Kind ParameterKind
+}
+
+func (ParameterType) Type() string {
+	return "ParameterType"
+}
+
+type Constraint struct {
+	BaseNode
+	Tvar  *Identifier
+	Kinds []*Identifier
+}
+
 // Package represents a complete package source tree
 type Package struct {
 	BaseNode
